@@ -1471,13 +1471,15 @@ _lp_kube_context()
 {
    (( LP_ENABLE_KUBECONTEXT )) || return
 
-   local _LP_KUBE_CONTEXT=$(kubectl config current-context 2>/dev/null)
-   if (( LP_ENABLE_KUBE_NAMESPACE )); then
-     local _LP_KUBE_NAMESPACE=/$(kubectl  config view -o=jsonpath="{.contexts[?(@.name==\"${_LP_KUBE_CONTEXT}\")].context.namespace}")
-     if [ "$_LP_KUBE_NAMESPACE" == "/" ]; then
+   local _LP_KUBE_CONTEXT=$(kubectl config current-context  2>/dev/null)
+
+   if [[ "$_LP_KUBE_CONTEXT" ]] && (( LP_ENABLE_KUBE_NAMESPACE )); then
+     local _LP_KUBE_NAMESPACE=/$(kubectl  config view -o=jsonpath="{.contexts[?(@.name==\"${_LP_KUBE_CONTEXT}\")].context.namespace}" 2>/dev/null)
+     if [[ $_LP_KUBE_NAMESPACE == / ]]; then
        _LP_KUBE_NAMESPACE=/default
      fi
    fi
+
    if [[ "$LP_DELIMITER_KUBECONTEXT" ]]; then
      echo "${_LP_KUBE_CONTEXT%%${LP_DELIMITER_KUBECONTEXT}*}$_LP_KUBE_NAMESPACE"
    else
