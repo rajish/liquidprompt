@@ -209,7 +209,7 @@ __lp_source_config() {
     LP_ENABLE_RUBY_VENV=${LP_ENABLE_RUBY_VENV:-1}
     LP_RUBY_RVM_PROMPT_OPTIONS=( ${LP_RUBY_RVM_PROMPT_OPTIONS[@]+"${LP_RUBY_RVM_PROMPT_OPTIONS[@]}"} )
     [[ ${#LP_RUBY_RVM_PROMPT_OPTIONS[@]} == 0 ]] && LP_RUBY_RVM_PROMPT_OPTIONS=(i v g s)
-    LP_ENABLE_TERRAFORM=${LP_ENABLE_TERRAFORM:-0}
+    LP_ENABLE_TERRAFORM=${LP_ENABLE_TERRAFORM:-1}
     LP_ENABLE_SCLS=${LP_ENABLE_SCLS:-1}
     LP_ENABLE_AWS_PROFILE=${LP_ENABLE_AWS_PROFILE:-1}
     LP_ENABLE_VCS_ROOT=${LP_ENABLE_VCS_ROOT:-0}
@@ -223,7 +223,8 @@ __lp_source_config() {
     LP_ENABLE_COLOR=${LP_ENABLE_COLOR:-1}
     LP_ENABLE_ERROR=${LP_ENABLE_ERROR:-1}
     LP_ENABLE_DIRSTACK=${LP_ENABLE_DIRSTACK:-0}
-    LP_ENABLE_KUBECONTEXT=${LP_ENABLE_KUBECONTEXT:-1}
+    LP_ENABLE_KUBECONTEXT=${LP_ENABLE_KUBECONTEXT:-0}
+    LP_ENABLE_KUBE_NAMESPACE=${LP_ENABLE_KUBE_NAMESPACE:-0}
 
     LP_MARK_DEFAULT="${LP_MARK_DEFAULT:-$_LP_MARK_SYMBOL}"
     LP_MARK_BATTERY="${LP_MARK_BATTERY:-"⌁"}"
@@ -1236,8 +1237,15 @@ _lp_software_collections_color() {
 _lp_kubernetes_context() {
     (( LP_ENABLE_KUBECONTEXT )) || return 2
 
-    local kubernetes_context
+    local kubernetes_context kubernetes_namespace
     kubernetes_context=$(kubectl config current-context 2>/dev/null) || return 1
+     if  (( ! $? && LP_ENABLE_KUBE_NAMESPACE )); then
+         kubernetes_namespace=/$(kubectl  config view -o=jsonpath="{.contexts[?(@.name==\"${_LP_KUBE_CONTEXT}\")].context.namespace}" 2> /dev/null)
+         if [[ "$kubernetes_namespace" == "/" ]]; then
+             kubernetes_namespace=/default
+         fi
+         kubernetes_context="${kubernetes_context}${kubernetes_namespace}"
+     fi
 
     if [[ -n "$LP_DELIMITER_KUBECONTEXT_PREFIX" ]]; then
         kubernetes_context="${kubernetes_context##*${LP_DELIMITER_KUBECONTEXT_PREFIX}}"
