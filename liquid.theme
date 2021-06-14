@@ -24,7 +24,7 @@ if [[ "$(locale -k LC_CTYPE | sed -n 's/^charmap="\(.*\)"/\1/p')" == *"UTF-8"* ]
     LP_MARK_STASH="+"          # if git has stashs
     LP_MARK_SHORTEN_PATH=" … " # prompt mark in shortened paths
     LP_MARK_PERM=":"           # separator between host and path
-    LP_MARK_KUBECONTEXT="☸ "   # Kubernetes context
+    LP_MARK_KUBECONTEXT="⎈"    # Kubernetes context
 else
     # If charset is anything else, fallback to ASCII chars
     LP_MARK_BATTERY="b"
@@ -119,7 +119,10 @@ LP_COLOR_IN_MULTIPLEXER="$BOLD_BLUE"
 LP_COLOR_VIRTUALENV="$CYAN"
 
 # Kubernetes
-LP_COLOR_KUBERNETES="$CYAN"
+LP_COLOR_KUBECONTEXT="$CYAN"
+
+# Terraform
+LP_COLOR_TERRAFORM="$PINK"
 
 # Runtime
 LP_COLOR_RUNTIME="$YELLOW"
